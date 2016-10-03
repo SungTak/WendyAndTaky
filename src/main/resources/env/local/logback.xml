@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] [%file:%line] - %msg%n</Pattern>
+		</layout>
+	</appender>
+	
+	<appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/home/taky/logs/web/web.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	  		<!-- max인 100MB를 넘어가면 파일 이름 패턴으로 인덱스가 생성되어 로그 파일이 분할됨 -->
+			<fileNamePattern>/home/taky/logs/web/web-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+	    		<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+    		<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] [%file:%line] - %msg%n</Pattern>
+  		</encoder>
+	</appender>
+	
+	<logger name="com.taky.and.wendy" level="DEBUG" additivity="false">
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+	</root>
+</configuration>
+
+<!-- 참고 : https://sonegy.wordpress.com/category/logback/ -->
