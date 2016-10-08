@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<title th:text="#{home.title} + ' 회원가입'"></title>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>e-mail</td>
+			<td><input id="id" type="text" placeholder="ID로 사용될 e-mail을 입력하세요."/></td>
+		</tr>
+		<tr>
+			<td>닉네임</td>
+			<td><input type="text" placeholder="사용할 이름을 입력하세요."/></td>
+		</tr>
+		<tr>
+			<td>비밀번호</td>
+			<td><input type="text" maxlength="20" placeholder="비밀번호는 영문 소문자 대문자 특수문자가 포함되어야합니다."/></td>
+		</tr>
+		<tr>
+			<td>비밀번호 확인</td>
+			<td><input type="text" maxlength="20" placeholder="동일한 비밀번호를 입력하세요."/></td>
+		</tr>
+	</table>
+	<a href="/signup">제출</a>
+	
+	<script src="js/jQuery/jquery-3.1.1.js"></script>
+	<script src="js/common/constants.js"></script>
+	<script src="js/utils/validator.js"></script>
+	<script src="js/utils/keyboard.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#id").focus();
+		});
+		
+		$("#id").on("blur", function() {
+			var oId = $(this);
+			var oMessage = $("#id_check_msg");
+			var oValidator = new Validator();
+			if (oValidator.checkId(oId.val()) === constants.user.ID_VALID) {
+				oMessage.text("올바른 Id입니다.");
+			} else {
+				oMessage.text("올바르지 않는 Id입니다. 숫자, 영문만 가능합니다.");
+				return;
+			}
+			
+			// ID를 입력해야 ajax를 호출한다.
+			var oResultId = isExistId(oId.val());
+			if (oResultId.isExist) {
+				oMessage.text(oResultId.sMessage);
+				return;
+			}
+		});
+		
+		function isExistId(id) {
+			var oResult = { 
+					isExist : true,
+					sMessage : "현재 통신에 문제가 생겨 ID를 검증할 수 없습니다!"
+				};
+			
+			if (id.length > 0) {
+				$.ajax({
+					url : "/search/user/id/" + id,
+					method : "GET",
+					dataType : "json",
+					async : false
+				}).done(function(data) {
+					if (data.exist) {
+						oResult.isExist = true;
+						oResult.sMessage = "이미 ID가 존재합니다.";
+					} else {
+						oResult.isExist = false;
+						oResult.sMessage = "등록할 수 있는 ID입니다.";
+					}
+				});		
+			}
+			
+			return oResult;
+		}
+		
+		$("#password").on("keypress", function(event) {
+			var oMessage = $("#password_check_msg");
+			var oKeyboard = new KeyboardUtils();
+			
+			if (oKeyboard.checkCapsLock(event)) {
+				oMessage.text("Caps Lock이 켜져있습니다.");
+			}
+			
+		});
+		
+		$("#password").on("blur", function() {
+			var oPassword = $(this);
+			var oMessage = $("#password_check_msg");
+			var oValidator = new Validator();
+			
+			if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_VALID) {
+				oMessage.text("비밀번호가 가능한 패턴입니다.");
+			} else if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_ALPHABET) {
+				oMessage.text("비밀번호에 영문자가 포함되어야 합니다.");
+			} else if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_NUMBER) {
+				oMessage.text("비밀번호에 숫자가 포함되어야 합니다.");
+			} else if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_SPECIAL) {
+				oMessage.text("비밀번호에 특수 문자가 포함되어야 합니다.");
+			} else {
+				oMessage.text("올바르지 않는 비밀번호 패턴입니다.");
+			}
+		});
+		
+		$("#confirm_password").on("blur", function() {
+			var oConfirmPassword = $(this);
+			var oPassword = $("#password");
+			var oMessage = $("#confirm_password_check_msg");
+			
+			if (oConfirmPassword.val().length == 0) {
+				oMessage.text("비밀번호 확인을 해주세요.");
+				return;
+			}
+			
+			if (oConfirmPassword.val() === oPassword.val()) {
+				oMessage.text("비밀번호 확인 완료");
+			} else {
+				oMessage.text("비밀번호 확인이 틀렸습니다! 다시 확인해주세요.");
+			}
+		});
+		
+		$("#email").on("blur", function() {
+			var oEmail = $(this);
+			var oMessage = $("#email_check_msg");
+			
+			if (oEmail.val().length == 0) {
+				oMessage.text("이메일을 입력해주세요.");
+				return;
+			}
+			
+			// TODO 이메일 검증
+			
+			// email을 입력하면 ajax를 호출한다.
+			var oResultEmail = isExist(oEmail.val(), "/search/user/email/", "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
+			oMessage.text(oResultEmail.sMessage);
+		});
+		
+		$("#name").on("blur", function() {
+			var oName = $(this);
+			var oMessage = $("#name_check_msg");
+			
+			if (oName.val().length == 0) {
+				oMessage.text("이름을 입력해주세요");
+				return;
+			}
+			
+			var oResultName = isExist(oName.val(), "/search/user/name/", "등록할 수 있는 이름입니다.", "이미 등록된 이름이 존재합니다.");
+			oMessage.text(oResultName.sMessage);
+		});
+		
+		function isExist(data, url, successMessage, failMessage) {
+			var oResult = { 
+					isExist : true,
+					sMessage : "현재 통신에 문제가 생겨 ID를 검증할 수 없습니다!"
+				};
+			
+			if (data.length == 0) {
+				oResult.sMessage = "데이터를 입력해주세요!";
+				return oResult;
+			}
+			
+			if (data.length > 0) {
+				$.ajax({
+					url : url + data,
+					method : "GET",
+					dataType : "json",
+					async : false
+				}).done(function(data) {
+					if (data.exist) {
+						oResult.isExist = true;
+						oResult.sMessage = failMessage;
+					} else {
+						oResult.isExist = false;
+						oResult.sMessage = successMessage;
+					}
+				});		
+			}
+			
+			return oResult;
+		}
+		$("#join_btn").on("click", function(event) {
+			event.preventDefault();
+			
+			var oValidator = new Validator();
+			<!-- id -->
+			var id = $("#id").val();
+			var sIdValid = oValidator.checkId(id);
+			if (sIdValid === constants.user.ID_EMPTY) {
+				alert("아이디를 입력하세요");
+				return;
+			}
+			
+			if (sIdValid === constants.user.ID_INVALID) {
+				alert("아이디는 영문, 숫자로만 구성이 가능합니다.");
+				return;
+			}
+			
+			<!-- 동일 ID DB 체크 -->
+			var oResultId = isExistId(id);
+			if (oResultId.isExist) {
+				alert(oResultId.sMessage);
+				return;
+			}
+			
+			<!-- password -->
+			var sPassword = $("#password").val();
+			var sPasswordValid = oValidator.checkPassword(sPassword);
+			if (sPasswordValid === constants.user.PASSWORD_EMPTY) {
+				alert("비밀번호를 입력하세요");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_INVALID) {
+				alert("영문, 숫자, 특수문자만 비밀번호가 가능합니다.");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_SPECIAL) {
+				alert("비밀번호에 특수문자가 포함되어야 합니다.");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_ALPHABET) {
+				alert("비밀번호에 영문자가 포함되어야합니다.");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_NUMBER) {
+				alert("비밀번호에 숫자가 포함되어합니다.");
+				return;
+			}
+			
+			<!-- confirm password -->
+			var sConfirmPassword = $("#confirm_password").val();
+			if (sPassword !== sConfirmPassword) {
+				alert("비밀번호 확인이 틀렸습니다! 다시 확인해주세요.");
+				return;
+			}
+			
+			var oResultEmail = isExist($("#email").val(), "/search/user/email/", "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
+			if (oResultEmail.isExist) {
+				alert(oResultEmail.sMessage);
+				return;
+			}
+			
+			var oResultName = isExist($("#name").val(), "/search/user/name/", "등록할 수 있는 이름입니다.", "이미 등록된 이름입니다.");
+			if (oResultName.isExist) {
+				alert(oResultName.sMessage);
+				return;
+			}
+			
+			// 메일은 Asnyc로 따로 보낼까잉?
+					
+			<!-- 회원가입 -->
+			$.ajax({
+				url : "/join",
+				method : "POST",
+				data : $("#join_form").serialize(),
+				dataType : "text"
+			}).done(function(data) {
+				alert(data);
+				location.href = "/";
+			}).fail(function(error) {
+				alert(error);
+				location.href = "/";
+			});
+		});
+	</script>
+</body>
+</html>
