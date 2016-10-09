@@ -5,25 +5,31 @@
 <title th:text="#{home.title} + ' 회원가입'"></title>
 </head>
 <body>
-	<table>
-		<tr>
-			<td>e-mail</td>
-			<td><input id="id" type="text" placeholder="ID로 사용될 e-mail을 입력하세요."/></td>
-		</tr>
-		<tr>
-			<td>닉네임</td>
-			<td><input type="text" placeholder="사용할 이름을 입력하세요."/></td>
-		</tr>
-		<tr>
-			<td>비밀번호</td>
-			<td><input type="text" maxlength="20" placeholder="비밀번호는 영문 소문자 대문자 특수문자가 포함되어야합니다."/></td>
-		</tr>
-		<tr>
-			<td>비밀번호 확인</td>
-			<td><input type="text" maxlength="20" placeholder="동일한 비밀번호를 입력하세요."/></td>
-		</tr>
-	</table>
-	<a href="/signup">제출</a>
+	<form id="signup_form">
+		<table>
+			<tr>
+				<td>e-mail</td>
+				<td><input id="email" type="text" placeholder="ID로 사용될 e-mail을 입력하세요."/></td>
+				<td><p id="email_check_msg"></p></td>
+			</tr>
+			<tr>
+				<td>닉네임</td>
+				<td><input id="name" type="text" placeholder="사용할 이름을 입력하세요."/></td>
+				<td><p id="name_check_msg"></p></td>
+			</tr>
+			<tr>
+				<td>비밀번호</td>
+				<td><input id="password" type="password" maxlength="20" placeholder="비밀번호는 영문 소문자 대문자 특수문자가 포함되어야합니다."/></td>
+				<td><p id="password_check_msg"></p></td>
+			</tr>
+			<tr>
+				<td>비밀번호 확인</td>
+				<td><input id="confirm_password" type="password" maxlength="20" placeholder="동일한 비밀번호를 입력하세요."/></td>
+				<td><p id="confirm_password_check_msg"></p></td>
+			</tr>
+		</table>
+		<a id="submit" href="/signup">제출</a>
+	</form>
 	
 	<script src="js/jQuery/jquery-3.1.1.js"></script>
 	<script src="js/common/constants.js"></script>
@@ -31,53 +37,8 @@
 	<script src="js/utils/keyboard.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			$("#id").focus();
+			$("#email").focus();
 		});
-		
-		$("#id").on("blur", function() {
-			var oId = $(this);
-			var oMessage = $("#id_check_msg");
-			var oValidator = new Validator();
-			if (oValidator.checkId(oId.val()) === constants.user.ID_VALID) {
-				oMessage.text("올바른 Id입니다.");
-			} else {
-				oMessage.text("올바르지 않는 Id입니다. 숫자, 영문만 가능합니다.");
-				return;
-			}
-			
-			// ID를 입력해야 ajax를 호출한다.
-			var oResultId = isExistId(oId.val());
-			if (oResultId.isExist) {
-				oMessage.text(oResultId.sMessage);
-				return;
-			}
-		});
-		
-		function isExistId(id) {
-			var oResult = { 
-					isExist : true,
-					sMessage : "현재 통신에 문제가 생겨 ID를 검증할 수 없습니다!"
-				};
-			
-			if (id.length > 0) {
-				$.ajax({
-					url : "/search/user/id/" + id,
-					method : "GET",
-					dataType : "json",
-					async : false
-				}).done(function(data) {
-					if (data.exist) {
-						oResult.isExist = true;
-						oResult.sMessage = "이미 ID가 존재합니다.";
-					} else {
-						oResult.isExist = false;
-						oResult.sMessage = "등록할 수 있는 ID입니다.";
-					}
-				});		
-			}
-			
-			return oResult;
-		}
 		
 		$("#password").on("keypress", function(event) {
 			var oMessage = $("#password_check_msg");
@@ -136,7 +97,8 @@
 			// TODO 이메일 검증
 			
 			// email을 입력하면 ajax를 호출한다.
-			var oResultEmail = isExist(oEmail.val(), "/search/user/email/", "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
+			var sQueryString = "email=" + oEmail.val();
+			var oResultEmail = isExist("/user", sQueryString, "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
 			oMessage.text(oResultEmail.sMessage);
 		});
 		
@@ -149,63 +111,44 @@
 				return;
 			}
 			
-			var oResultName = isExist(oName.val(), "/search/user/name/", "등록할 수 있는 이름입니다.", "이미 등록된 이름이 존재합니다.");
+			var sEncodeName = encodeURIComponent(oName.val());
+			var oResultName = isExist(sEncodeName, "/user", "등록할 수 있는 이름입니다.", "이미 등록된 이름이 존재합니다.");
 			oMessage.text(oResultName.sMessage);
 		});
 		
-		function isExist(data, url, successMessage, failMessage) {
+		function isExist(url, queryString, successMessage, failMessage) {
 			var oResult = { 
 					isExist : true,
 					sMessage : "현재 통신에 문제가 생겨 ID를 검증할 수 없습니다!"
 				};
 			
-			if (data.length == 0) {
-				oResult.sMessage = "데이터를 입력해주세요!";
+			if (queryString.length == 0) {
+				oResult.sMessage = "쿼리스트링을 입력해주세요!";
 				return oResult;
 			}
 			
-			if (data.length > 0) {
-				$.ajax({
-					url : url + data,
-					method : "GET",
-					dataType : "json",
-					async : false
-				}).done(function(data) {
-					if (data.exist) {
-						oResult.isExist = true;
-						oResult.sMessage = failMessage;
-					} else {
-						oResult.isExist = false;
-						oResult.sMessage = successMessage;
-					}
-				});		
-			}
+			$.ajax({
+				url : url + "?" + queryString,
+				method : "GET",
+				dataType : "json",
+				async : false
+			}).done(function(data) {
+				if (data.exist) {
+					oResult.isExist = true;
+					oResult.sMessage = failMessage;
+				} else {
+					oResult.isExist = false;
+					oResult.sMessage = successMessage;
+				}
+			});		
 			
 			return oResult;
 		}
-		$("#join_btn").on("click", function(event) {
+		
+		$("#submit").on("click", function(event) {
 			event.preventDefault();
 			
 			var oValidator = new Validator();
-			<!-- id -->
-			var id = $("#id").val();
-			var sIdValid = oValidator.checkId(id);
-			if (sIdValid === constants.user.ID_EMPTY) {
-				alert("아이디를 입력하세요");
-				return;
-			}
-			
-			if (sIdValid === constants.user.ID_INVALID) {
-				alert("아이디는 영문, 숫자로만 구성이 가능합니다.");
-				return;
-			}
-			
-			<!-- 동일 ID DB 체크 -->
-			var oResultId = isExistId(id);
-			if (oResultId.isExist) {
-				alert(oResultId.sMessage);
-				return;
-			}
 			
 			<!-- password -->
 			var sPassword = $("#password").val();
@@ -242,13 +185,15 @@
 				return;
 			}
 			
-			var oResultEmail = isExist($("#email").val(), "/search/user/email/", "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
+			var sEncodeEmail = encodeURIComponent($("#email").val());
+			var oResultEmail = isExist(sEncodeEmail, "/user", "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
 			if (oResultEmail.isExist) {
 				alert(oResultEmail.sMessage);
 				return;
 			}
 			
-			var oResultName = isExist($("#name").val(), "/search/user/name/", "등록할 수 있는 이름입니다.", "이미 등록된 이름입니다.");
+			var sEncodeName = encodeURIComponent($("#name").val());
+			var oResultName = isExist(sEncodeName, "/user", "등록할 수 있는 이름입니다.", "이미 등록된 이름입니다.");
 			if (oResultName.isExist) {
 				alert(oResultName.sMessage);
 				return;
@@ -258,9 +203,9 @@
 					
 			<!-- 회원가입 -->
 			$.ajax({
-				url : "/join",
+				url : "/signup",
 				method : "POST",
-				data : $("#join_form").serialize(),
+				data : $("#signup_form").serialize(),
 				dataType : "text"
 			}).done(function(data) {
 				alert(data);
