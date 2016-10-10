@@ -98,8 +98,15 @@
 			
 			// email을 입력하면 ajax를 호출한다.
 			var sQueryString = "email=" + oEmail.val();
-			var oResultEmail = isExist("/user", sQueryString, "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
-			oMessage.text(oResultEmail.sMessage);
+			existUserByAjax("/user", sQueryString).then(function(data) {
+					if (data.exist) {
+						oMessage.text("이미 등록된 e-mail이 존재합니다.");
+					} else {
+						oMessage.text("등록할 수 있는 e-mail입니다.");
+					}
+				}).fail(function() {
+					oMessage.text("현재 통신에 문제가 생겼습니다.");
+				});
 		});
 		
 		$("#name").on("blur", function() {
@@ -111,38 +118,24 @@
 				return;
 			}
 			
-			var sEncodeName = encodeURIComponent(oName.val());
-			var oResultName = isExist(sEncodeName, "/user", "등록할 수 있는 이름입니다.", "이미 등록된 이름이 존재합니다.");
-			oMessage.text(oResultName.sMessage);
+			var sQueryString = "name=" + oName.val();
+			existUserByAjax("/user", sQueryString).then(function(data) {
+					if (data.exist) {
+						oMessage.text("이미 등록된 이름이 존재합니다.");
+					} else {
+						oMessage.text("등록할 수 있는 이름입니다.");
+					}
+				}).fail(function() {
+					oMessage.text("현재 통신에 문제가 생겼습니다."); // TODO 서버 에러를 잡아서 보여줘도 될듯
+				});
 		});
 		
-		function isExist(url, queryString, successMessage, failMessage) {
-			var oResult = { 
-					isExist : true,
-					sMessage : "현재 통신에 문제가 생겨 ID를 검증할 수 없습니다!"
-				};
-			
-			if (queryString.length == 0) {
-				oResult.sMessage = "쿼리스트링을 입력해주세요!";
-				return oResult;
-			}
-			
-			$.ajax({
+		function existUserByAjax(url, queryString) {
+			return $.ajax({
 				url : url + "?" + queryString,
 				method : "GET",
 				dataType : "json",
-				async : false
-			}).done(function(data) {
-				if (data.exist) {
-					oResult.isExist = true;
-					oResult.sMessage = failMessage;
-				} else {
-					oResult.isExist = false;
-					oResult.sMessage = successMessage;
-				}
 			});		
-			
-			return oResult;
 		}
 		
 		$("#submit").on("click", function(event) {
@@ -185,19 +178,25 @@
 				return;
 			}
 			
-			var sEncodeEmail = encodeURIComponent($("#email").val());
-			var oResultEmail = isExist(sEncodeEmail, "/user", "등록할 수 있는 e-mail입니다.", "이미 등록된 e-mail이 존재합니다.");
-			if (oResultEmail.isExist) {
-				alert(oResultEmail.sMessage);
-				return;
-			}
+			var sQueryString = "email=" + $("#email").val();
+			// 여기는 promise?
+			existUserByAjax("/user", sQueryString).then(function(data) {
+					if (data.exist) {
+						alert("이미 등록된 e-mail이 존재합니다.");
+					}
+				}).fail(function() {
+					alert("현재 통신에 문제가 생겼습니다.");
+				});
 			
-			var sEncodeName = encodeURIComponent($("#name").val());
-			var oResultName = isExist(sEncodeName, "/user", "등록할 수 있는 이름입니다.", "이미 등록된 이름입니다.");
-			if (oResultName.isExist) {
-				alert(oResultName.sMessage);
-				return;
-			}
+			
+			sQueryString = "name=" + $("#name").val();
+			existUserByAjax("/user", sQueryString).then(function(data) {
+					if (data.exist) {
+						alert("이미 등록된 이름입니다.");
+					}
+				}).fail(function() {
+					alert("현재 통신에 문제가 생겼습니다.");
+				});
 			
 			// 메일은 Asnyc로 따로 보낼까잉?
 					
