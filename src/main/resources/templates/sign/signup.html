@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="cache-control" content="no-cache"/>
+<meta http-equiv="expires" content="0"/>
 <title th:text="#{home.title} + ' 회원가입'"></title>
 </head>
 <body>
@@ -9,17 +11,17 @@
 		<table>
 			<tr>
 				<td>e-mail</td>
-				<td><input id="email" type="text" placeholder="ID로 사용될 e-mail을 입력하세요."/></td>
+				<td><input id="email" name="email" type="text" placeholder="ID로 사용될 e-mail을 입력하세요."/></td>
 				<td><p id="email_check_msg"></p></td>
 			</tr>
 			<tr>
 				<td>닉네임</td>
-				<td><input id="name" type="text" placeholder="사용할 이름을 입력하세요."/></td>
+				<td><input id="name" name="name" type="text" placeholder="사용할 이름을 입력하세요."/></td>
 				<td><p id="name_check_msg"></p></td>
 			</tr>
 			<tr>
 				<td>비밀번호</td>
-				<td><input id="password" type="password" maxlength="20" placeholder="비밀번호는 영문 소문자 대문자 특수문자가 포함되어야합니다."/></td>
+				<td><input id="password" name="password" type="password" maxlength="20" placeholder="비밀번호는 영문 소문자 대문자 특수문자가 포함되어야합니다."/></td>
 				<td><p id="password_check_msg"></p></td>
 			</tr>
 			<tr>
@@ -138,6 +140,15 @@
 			});		
 		}
 		
+		function signup() {
+			return $.ajax({
+				url : "/signup",
+				method : "POST",
+				data : $("#signup_form").serialize(),
+				dataType : "text"
+			});
+		}
+		
 		$("#submit").on("click", function(event) {
 			event.preventDefault();
 			
@@ -178,41 +189,30 @@
 				return;
 			}
 			
-			var sQueryString = "email=" + $("#email").val();
-			// 여기는 promise?
-			existUserByAjax("/user", sQueryString).then(function(data) {
-					if (data.exist) {
+			var sEmailQueryString = "email=" + $("#email").val();
+			var sNameQueryString = "name=" + $("#name").val();
+			$.when(existUserByAjax("/user", sEmailQueryString), existUserByAjax("/user", sNameQueryString))
+				.then(function(emailData, nameData) {
+					if (emailData.exist) {
 						alert("이미 등록된 e-mail이 존재합니다.");
+						return;
 					}
-				}).fail(function() {
-					alert("현재 통신에 문제가 생겼습니다.");
-				});
-			
-			
-			sQueryString = "name=" + $("#name").val();
-			existUserByAjax("/user", sQueryString).then(function(data) {
-					if (data.exist) {
-						alert("이미 등록된 이름입니다.");
-					}
-				}).fail(function() {
-					alert("현재 통신에 문제가 생겼습니다.");
-				});
-			
-			// 메일은 Asnyc로 따로 보낼까잉?
 					
-			<!-- 회원가입 -->
-			$.ajax({
-				url : "/signup",
-				method : "POST",
-				data : $("#signup_form").serialize(),
-				dataType : "text"
-			}).done(function(data) {
-				alert(data);
-				location.href = "/";
-			}).fail(function(error) {
-				alert(error);
-				location.href = "/";
-			});
+					if (nameData.exist) {
+						alert("이미 등록된 이름입니다.");
+						return;
+					}
+					
+					return signup();
+				}, function() {
+					alert("현재 통신에 문제가 생겼습니다.");	
+				}).then(function(data) {
+					alert(data);
+					location.href = "/";
+				}, function(error) {
+					alert(error);
+					location.href = "/";
+				});
 		});
 	</script>
 </body>

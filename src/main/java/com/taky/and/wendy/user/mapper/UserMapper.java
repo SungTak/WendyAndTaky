@@ -7,4 +7,6 @@ import com.taky.and.wendy.user.model.User;
 @Repository
 public interface UserMapper {
 	public User selectUser(User user) throws Exception;
+	
+	public long insertUser(User user) throws Exception;
 }
