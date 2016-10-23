@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
+import com.taky.and.wendy.common.mail.MailService;
 import com.taky.and.wendy.user.exception.UserSignupException;
 import com.taky.and.wendy.user.mapper.UserMapper;
 import com.taky.and.wendy.user.model.User;
@@ -27,6 +28,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserMapper userMapper;
+	
+	@Autowired
+	private MailService mailService;
 	
 	@Override
 	public UserChecker existUser(User user) throws Exception {
@@ -57,6 +61,9 @@ public class UserServiceImpl implements UserService {
 		user.setCertification(this.createCertification(user.getName()));
 		
 		userMapper.insertUser(user);
+		
+		String text = "회원가입을 해주셔서 감사합니다. 최종 인증을 받으세요!";
+		mailService.sendForCertificate(user, "[Taky & Wendy] 가입을 환영합니다!", text);
 	}
 	
 	private void validUserParameter(String userInfo, String errorMessage) {

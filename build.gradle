@@ -43,6 +43,10 @@ dependencies {
 	
 	// 암호화
 	compile("de.svenkubiak:jBCrypt:0.4.1")
+	
+	// e-mail
+	compile("com.sun.mail:javax.mail")
+	compile("org.springframework.integration:spring-integration-mail")
     
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("junit:junit")

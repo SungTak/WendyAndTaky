@@ -29,6 +29,6 @@ public class SignController {
 	public String signup(User user) throws Exception {
 		userService.saveUser(user);
 		
-		return "가입하신 e-mail로 인증 메일을 전송하였습니다. 확인해주세요.";
+		return "가입하신 e-mail로 인증 메일을 전송했습니다. 전송 시간이 걸리거나 스팸메일함에 있을 수 있습니다.";
 	}
 }
