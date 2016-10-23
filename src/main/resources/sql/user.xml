@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.taky.and.wendy.user.mapper.UserMapper">
+	<sql id="where">
+		<where>
+			<if test="@org.apache.commons.lang3.StringUtils@isNotEmpty(email)">
+				AND email = #{email}
+			</if>	
+			<if test="@org.apache.commons.lang3.StringUtils@isNotEmpty(name)">
+				AND name = #{name}
+			</if>	
+		</where>
+	</sql>
+
 	<insert id="insertUser" parameterType="user">
 		/* User.insertUser */
 		INSERT INTO User (
@@ -23,6 +34,18 @@
 			NOW()
 		)
 	</insert>
+	
+	<update id="updateUser" parameterType="user">
+		/* User.updateUser */
+		UPDATE user 
+		SET
+			moddate = NOW(),
+		<if test="@org.apache.commons.lang3.StringUtils@isNotEmpty(condition)">
+			`Condition` = #{condition}
+		</if>
+		
+		<include refid="where"></include>
+	</update>
 
 	<select id="selectUser" parameterType="user" resultType="user">
 		/* User.selectUserBy */
@@ -32,17 +55,12 @@
 			name, 
 			`condition`,
 			level,
+			certification,
 			regdate, 
 			moddate
 			
 		FROM user
-		<where>
-			<if test="@org.apache.commons.lang3.StringUtils@isNotEmpty(email)">
-				AND email = #{email}
-			</if>	
-			<if test="@org.apache.commons.lang3.StringUtils@isNotEmpty(name)">
-				AND name = #{name}
-			</if>	
-		</where>
+		
+		<include refid="where"></include>
 	</select>
 </mapper>

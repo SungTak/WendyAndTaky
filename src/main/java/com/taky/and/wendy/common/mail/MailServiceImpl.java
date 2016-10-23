@@ -7,6 +7,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriUtils;
 
 import com.taky.and.wendy.user.model.User;
 
@@ -32,7 +33,8 @@ public class MailServiceImpl implements MailService {
 		simpleMailMessage.setSubject(title);
 		simpleMailMessage.setTo(user.getEmail());
 		
-		text += "<br><a href='" + host + user.getCertification() + "'>인증하러 가기</a>";
+		String queryString = "?certification=" + user.getCertification() + "&email=" + UriUtils.encode(user.getEmail(), "utf-8");
+		text += "<br><a href='" + host + queryString + "'>인증하러 가기</a>";
 		
 		simpleMailMessage.setText(text);
 

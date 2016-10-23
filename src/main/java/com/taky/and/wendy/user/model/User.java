@@ -12,6 +12,11 @@ import org.apache.ibatis.type.Alias;
  */
 @Alias("user")
 public class User {
+	/** 유저의 상태가 등록 */
+	public static final String RECORD = "record";
+	/** 유저의 상태가 일반 */
+	public static final String NORMAL = "normal";
+	
 	private String email;
 	private String name;
 	private String password;

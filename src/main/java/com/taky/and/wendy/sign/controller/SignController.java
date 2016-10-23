@@ -19,6 +19,18 @@ public class SignController {
 		return "sign/signin";
 	}
 	
+	@RequestMapping(path = "/signin/certification", method = RequestMethod.GET)
+	public String showSigninCertification(User user) throws Exception {
+		// TODO 주의 : 브라우저로 직접 치면 당연히 디코드됨, 링크 눌러도 디코드가 될지모름..
+		boolean isValid = userService.modifyUserCondition(user);
+		
+		if (isValid) {
+			return "sign/certification";
+		} else {
+			return "sign/invalid";
+		}
+	}
+	
 	@RequestMapping(path = "/signup", method = RequestMethod.GET)
 	public String showSignupView() throws Exception {
 		return "sign/signup";

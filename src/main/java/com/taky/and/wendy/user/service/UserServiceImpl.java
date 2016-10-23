@@ -66,6 +66,40 @@ public class UserServiceImpl implements UserService {
 		mailService.sendForCertificate(user, "[Taky & Wendy] 가입을 환영합니다!", text);
 	}
 	
+	@Override
+	public User findUser(User user) throws Exception {
+		return userMapper.selectUser(user);
+	}
+	
+	public void modifyUser(User user) throws Exception {
+		userMapper.updateUser(user);
+	}
+	
+	/**
+	 * 유저의 인증 정보가 동일한지 체크한 뒤
+	 * 동일하면 상태를 normal로 변경한다.
+	 */
+	@Override
+	public boolean modifyUserCondition(User user) throws Exception {
+		User foundUser = this.findUser(user);
+		
+		if (foundUser == null) {
+			return false;
+		}
+		
+		if (checkCertificationAndCondition(user, foundUser) == false) {
+			return false;
+		}
+		
+		User modifyUser = new User();
+		modifyUser.setCondition(User.NORMAL);
+		modifyUser.setEmail(foundUser.getEmail());
+		
+		this.modifyUser(modifyUser);
+		
+		return true;
+	}
+	
 	private void validUserParameter(String userInfo, String errorMessage) {
 		if (StringUtils.isEmpty(userInfo)) {
 			logger.error(errorMessage);
@@ -84,5 +118,16 @@ public class UserServiceImpl implements UserService {
 		String encrypt = BCrypt.hashpw(normal, BCrypt.gensalt());
 		
 		return Base64.getEncoder().encodeToString(encrypt.getBytes());
+	}
+	
+	/**
+	 * 유저 인증 정보와 상태가 '등록'인지 확인한다.
+	 * 
+	 * @param user
+	 * @param foundUser
+	 * @return
+	 */
+	private boolean checkCertificationAndCondition(User user, User foundUser) {
+		return StringUtils.equals(foundUser.getCertification(), user.getCertification()) && StringUtils.equals(User.RECORD, foundUser.getCondition());
 	}
 }

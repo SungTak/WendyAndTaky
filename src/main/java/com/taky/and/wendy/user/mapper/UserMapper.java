@@ -9,4 +9,6 @@ public interface UserMapper {
 	public User selectUser(User user) throws Exception;
 	
 	public long insertUser(User user) throws Exception;
+	
+	public void updateUser(User user) throws Exception;
 }
