@@ -16,9 +16,9 @@
 			#{email},
 			#{password},
 			#{name},
-			'regist',
-			#{certification}
+			'record',
 			1,
+			#{certification},
 			NOW(),
 			NOW()
 		)
