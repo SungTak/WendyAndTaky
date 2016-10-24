@@ -1,6 +1,8 @@
 package com.taky.and.wendy.common.mail;
 
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -49,5 +51,12 @@ public class MailServiceImpl implements MailService {
 		sender.setPassword("");
 		sender.setJavaMailProperties(mailProperties);
 		sender.send(simpleMailMessage);
+	}
+	
+	@Override
+	public boolean isValidEmail(String email) {
+		Pattern pattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(email);
+		return matcher.find();
 	}
 }
