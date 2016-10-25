@@ -1,8 +1,15 @@
 package com.taky.and.wendy.user.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.Alias;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * 유저 정보 객체
@@ -11,7 +18,8 @@ import org.apache.ibatis.type.Alias;
  *
  */
 @Alias("user")
-public class User {
+@SuppressWarnings("serial")
+public class User implements UserDetails {
 	/** 유저의 상태가 등록 */
 	public static final String RECORD = "record";
 	/** 유저의 상태가 일반 */
@@ -91,5 +99,50 @@ public class User {
 
 	public void setCondition(String condition) {
 		this.condition = condition;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		grantedAuthorities.add(new SimpleGrantedAuthority(Long.toString(level))); 
+		
+		return grantedAuthorities;
+	}
+
+	@Override
+	public String getUsername() {
+		return name;
+	}
+
+	/**
+	 * 계정이 만료되지 않았는가?
+	 */
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	/**
+	 * 계정이 잠겨있지 않는가?
+	 */
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	/**
+	 * 계정의 패스워드가 만료되지 않았는가?
+	 */
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	/**
+	 * 계정이 사용가능한가?
+	 */
+	@Override
+	public boolean isEnabled() {
+		return StringUtils.equals(NORMAL, condition);
 	}
 }

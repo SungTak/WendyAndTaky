@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
 <meta charset="UTF-8"/>
 <title th:text="#{home.title}">Wendy And Taky !</title>
 </head>
 <body>
-	<a href="signin">로그인</a>
-	Hello
+	<ul>
+		<li sec:authorize="isAnonymous()"><a href="signin">로그인</a></li>
+		<li sec:authorize="isAuthenticated()"><a href="signout">로그아웃</a></li>
+	</ul>
 </body>
 </html>

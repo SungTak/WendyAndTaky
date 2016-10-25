@@ -7,6 +7,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
@@ -23,7 +26,7 @@ import com.taky.and.wendy.user.model.UserChecker;
  *
  */
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class); 
 	
 	@Autowired
@@ -129,5 +132,19 @@ public class UserServiceImpl implements UserService {
 	 */
 	private boolean checkCertificationAndCondition(User user, User foundUser) {
 		return StringUtils.equals(foundUser.getCertification(), user.getCertification()) && StringUtils.equals(User.RECORD, foundUser.getCondition());
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		try {
+			User user = new User();
+			user.setEmail(email);
+			
+			User foundUser = this.findUser(user);
+			logger.debug(foundUser.getPassword());
+			return foundUser;
+		} catch(Exception e) {
+			throw new UsernameNotFoundException("### 유저 정보를 찾는 과정에서 에러가 발생했습니다.", e);
+		}
 	}
 }
