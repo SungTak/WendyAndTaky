@@ -8,8 +8,11 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 </head>
 <body>
 	<ul>
-		<li sec:authorize="isAnonymous()"><a href="signin">로그인</a></li>
-		<li sec:authorize="isAuthenticated()"><a href="signout">로그아웃</a></li>
+		<li sec:authorize="isAnonymous()"><a href="/signin">로그인</a></li>
+		<li sec:authorize="isAuthenticated()"><a href="/signout">로그아웃</a></li>
+	</ul>
+	<ul>
+		<li><a href="/seoul">서울</a></li>
 	</ul>
 </body>
 </html>
