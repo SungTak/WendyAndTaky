@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+<title th:text="#{home.title} + ' 회원가입'"></title>
+</head>
+<body>
+	<form id="signup_form">
+		<table>
+			<tr>
+				<td>e-mail</td>
+				<td><input id="email" name="email" type="text" placeholder="ID로 사용될 e-mail을 입력하세요."/></td>
+				<td><p id="email_check_msg"></p></td>
+			</tr>
+			<tr>
+				<td>닉네임</td>
+				<td><input id="name" name="name" type="text" placeholder="사용할 이름을 입력하세요."/></td>
+				<td><p id="name_check_msg"></p></td>
+			</tr>
+			<tr>
+				<td>비밀번호</td>
+				<td><input id="password" name="password" type="password" maxlength="20" placeholder="비밀번호는 영문 소문자 대문자 특수문자가 포함되어야합니다."/></td>
+				<td><p id="password_check_msg"></p></td>
+			</tr>
+			<tr>
+				<td>비밀번호 확인</td>
+				<td><input id="confirm_password" type="password" maxlength="20" placeholder="동일한 비밀번호를 입력하세요."/></td>
+				<td><p id="confirm_password_check_msg"></p></td>
+			</tr>
+		</table>
+		<a id="submit" href="/signup">제출</a>
+	</form>
+	
+	<script src="js/jQuery/jquery-3.1.1.js"></script>
+	<script src="js/common/constants.js"></script>
+	<script src="js/utils/validator.js"></script>
+	<script src="js/utils/keyboard.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#email").focus();
+		});
+		
+		$("#password").on("keypress", function(event) {
+			var oMessage = $("#password_check_msg");
+			var oKeyboard = new KeyboardUtils();
+			
+			if (oKeyboard.checkCapsLock(event)) {
+				oMessage.text("Caps Lock이 켜져있습니다.");
+			}
+			
+		});
+		
+		$("#password").on("blur", function() {
+			var oPassword = $(this);
+			var oMessage = $("#password_check_msg");
+			var oValidator = new wat.Validator();
+			
+			if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_VALID) {
+				oMessage.text("비밀번호가 가능한 패턴입니다.");
+			} else if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_ALPHABET) {
+				oMessage.text("비밀번호에 영문자가 포함되어야 합니다.");
+			} else if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_NUMBER) {
+				oMessage.text("비밀번호에 숫자가 포함되어야 합니다.");
+			} else if (oValidator.checkPassword(oPassword.val()) === constants.user.PASSWORD_SPECIAL) {
+				oMessage.text("비밀번호에 특수 문자가 포함되어야 합니다.");
+			} else {
+				oMessage.text("올바르지 않는 비밀번호 패턴입니다.");
+			}
+		});
+		
+		$("#confirm_password").on("blur", function() {
+			var oConfirmPassword = $(this);
+			var oPassword = $("#password");
+			var oMessage = $("#confirm_password_check_msg");
+			
+			if (oConfirmPassword.val().length == 0) {
+				oMessage.text("비밀번호 확인을 해주세요.");
+				return;
+			}
+			
+			if (oConfirmPassword.val() === oPassword.val()) {
+				oMessage.text("비밀번호 확인 완료");
+			} else {
+				oMessage.text("비밀번호 확인이 틀렸습니다! 다시 확인해주세요.");
+			}
+		});
+		
+		$("#email").on("blur", function() {
+			var oEmail = $(this);
+			var oMessage = $("#email_check_msg");
+			
+			if (oEmail.val().length == 0) {
+				oMessage.text("이메일을 입력해주세요.");
+				return;
+			}
+			
+			var oValidator = new wat.Validator();
+			var isValid = oValidator.checkEmail(oEmail.val());
+			
+			if (isValid === false) {
+				oMessage.text("적합하지 않는 email의 형태입니다.");
+				return;
+			}
+			
+			// email을 입력하면 ajax를 호출한다.
+			var sQueryString = "email=" + oEmail.val();
+			existUserByAjax("/user", sQueryString).then(function(data) {
+					if (data.exist) {
+						oMessage.text("이미 등록된 e-mail이 존재합니다.");
+					} else {
+						oMessage.text("등록할 수 있는 e-mail입니다.");
+					}
+				}).fail(function() {
+					oMessage.text("현재 통신에 문제가 생겼습니다.");
+				});
+		});
+		
+		$("#name").on("blur", function() {
+			var oName = $(this);
+			var oMessage = $("#name_check_msg");
+			
+			if (oName.val().length == 0) {
+				oMessage.text("이름을 입력해주세요");
+				return;
+			}
+			
+			var sQueryString = "name=" + oName.val();
+			existUserByAjax("/user", sQueryString).then(function(data) {
+					if (data.exist) {
+						oMessage.text("이미 등록된 이름이 존재합니다.");
+					} else {
+						oMessage.text("등록할 수 있는 이름입니다.");
+					}
+				}).fail(function() {
+					oMessage.text("현재 통신에 문제가 생겼습니다."); // TODO 서버 에러를 잡아서 보여줘도 될듯
+				});
+		});
+		
+		function existUserByAjax(url, queryString) {
+			return $.ajax({
+				url : url + "?" + queryString,
+				method : "GET",
+				dataType : "json",
+			});		
+		}
+		
+		function signup() {
+			return $.ajax({
+				url : "/signup",
+				method : "POST",
+				data : $("#signup_form").serialize(),
+				dataType : "text"
+			});
+		}
+		
+		$("#submit").on("click", function(event) {
+			event.preventDefault();
+			
+			var oValidator = new wat.Validator();
+			
+			<!-- password -->
+			var sPassword = $("#password").val();
+			var sPasswordValid = oValidator.checkPassword(sPassword);
+			if (sPasswordValid === constants.user.PASSWORD_EMPTY) {
+				alert("비밀번호를 입력하세요");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_INVALID) {
+				alert("영문, 숫자, 특수문자만 비밀번호가 가능합니다.");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_SPECIAL) {
+				alert("비밀번호에 특수문자가 포함되어야 합니다.");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_ALPHABET) {
+				alert("비밀번호에 영문자가 포함되어야합니다.");
+				return;
+			}
+			
+			if (sPasswordValid === constants.user.PASSWORD_NUMBER) {
+				alert("비밀번호에 숫자가 포함되어합니다.");
+				return;
+			}
+			
+			<!-- confirm password -->
+			var sConfirmPassword = $("#confirm_password").val();
+			if (sPassword !== sConfirmPassword) {
+				alert("비밀번호 확인이 틀렸습니다! 다시 확인해주세요.");
+				return;
+			}
+			
+			<!-- email check -->			
+			var isValid = oValidator.checkEmail(oEmail.val());
+			
+			if (isValid) {
+				alert("적합하지 않는 email의 형태입니다.");
+				return;
+			}
+			
+			var sEmailQueryString = "email=" + $("#email").val();
+			var sNameQueryString = "name=" + $("#name").val();
+			$.when(existUserByAjax("/user", sEmailQueryString), existUserByAjax("/user", sNameQueryString))
+				.then(function(emailData, nameData) {
+					if (emailData.exist) {
+						alert("이미 등록된 e-mail이 존재합니다.");
+						return;
+					}
+					
+					if (nameData.exist) {
+						alert("이미 등록된 이름입니다.");
+						return;
+					}
+					
+					return signup();
+				}, function() {
+					alert("현재 통신에 문제가 생겼습니다.");	
+				}).then(function(data) {
+					alert(data);
+					location.href = "/";
+				}, function(error) {
+					alert(error);
+					location.href = "/";
+				});
+		});
+	</script>
+</body>
+</html>

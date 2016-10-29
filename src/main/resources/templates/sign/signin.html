@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<title th:text="#{home.title} + ' 로그인'">Wendy And Taky !</title>
+</head>
+<body>
+	<h2>로그인</h2>
+	<form id="signin_form" th:action="@{/signin}" method="post">
+	<table>
+		<tr>
+			<td>ID</td>
+			<td><input type="text" name="email" placeholder="email을 입력해주세요"/></td>
+		</tr>
+		<tr>
+			<td>PASSWORD</td>
+			<td><input type="password" name="password" /></td>
+		</tr>
+	</table>
+	<div th:if="${param.error}">
+		비밀번호 혹은 ID가 틀렸습니다.
+	</div>
+	</form>
+	<a href="#" id="signin_btn">로그인</a>
+	<a href="/signup">가입</a>
+	
+	<script src="js/jQuery/jquery-3.1.1.js"></script>
+	<script type="text/javascript">
+		$("#signin_btn").on("click", function(event) {
+			event.preventDefault();
+			
+			$("#signin_form").submit();
+		});
+	</script>
+</body>
+</html>
