@@ -53,8 +53,10 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 		</tbody>
 	</table>
 </form>
+<a href="#" id="submit">제출</a>
 
 <script src="/js/jQuery/jquery-3.1.1.js"></script>
+<script src="/js/utils/file.js"></script>
 <script type="text/javascript">
 /*<![CDATA[*/
 	$(document).ready(function() {
@@ -62,42 +64,22 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 	});
 	
 	function initEvent() {
+		var oFile = new wat.File();
+		
 		$("#content_image").on("change", {
 			"file" : $("#content_image"),
 			"content" : $("#editor")
-		}, appendContentFile);
+		}, oFile.appendContentFile);
 
 		$("#thumbnail").on("change", {
 			"file" : $("#thumbnail"),
 			"preview" : $("#preview_thumbnail")
-		}, previewImage);
-	}
-
-	function appendContentFile(event) {
-		var eFile = event.data.file[0];
-		var $content = event.data.content;
+		}, oFile.previewImage);
 		
-	    if (eFile.files && eFile.files[0]) {
-	        var reader = new FileReader();
-	        reader.onload = function(e) {
-	        	var eImg = $("<img>").prop("src", e.target.result);
-	        	$content.append(eImg);
-	        }
-	        reader.readAsDataURL(eFile.files[0]);
-	    }
-	}
-	
-	function previewImage(event) {
-		var eFile = event.data.file[0];
-		var $preview = event.data.preview;
-		
-	    if (eFile.files && eFile.files[0]) {
-	        var reader = new FileReader();
-	        reader.onload = function(e) {
-	        	$preview.prop("src", e.target.result);
-	        }
-	        reader.readAsDataURL(eFile.files[0]);
-	    }
+		$("#submit").on("click", function() {
+			// TODO xss filter와 content데이터가 올라가는지?확인
+			$("#upload_date").submit();
+		});
 	}
 /*]]>*/
 </script>
