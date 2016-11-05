@@ -25,10 +25,21 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 
 </head>
 <body>
-<form id="upload_date">
+<form id="upload_date" method="post" enctype="multipart/form-data">
 	<!-- 로그인 유저 레벨에 따라 다르게 보여야하ㅓㄴ다!! URL 직접 접근도 마찬가지! -->
 	<table>
 		<tbody>
+			<tr>
+				<td>지역</td>
+				<td>
+					<div id="region_list">
+						<ul>
+							<li class="region_selected">서울/종로</li>
+						</ul>
+						<input type="hidden" name="region" />
+					</div>
+				</td>
+			</tr>
 			<tr>
 				<td>제목</td>
 				<td><input type="text" name="title" placeholder="제목을 입력하세요" /></td>
@@ -53,7 +64,7 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 		</tbody>
 	</table>
 </form>
-<a href="#" id="submit">제출</a>
+<a href="/upload/date-course" id="submit">제출</a>
 
 <script src="/js/jQuery/jquery-3.1.1.js"></script>
 <script src="/js/utils/file.js"></script>
@@ -75,10 +86,32 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 			"file" : $("#thumbnail"),
 			"preview" : $("#preview_thumbnail")
 		}, oFile.previewImage);
-		
-		$("#submit").on("click", function() {
+				
+		$("#submit").on("click", function(event) {
+			event.preventDefault();
+			
+			var region = $(".region_selected").text();
+			$("input[name='region']").val(region);
+			
 			// TODO xss filter와 content데이터가 올라가는지?확인
 			$("#upload_date").submit();
+		});
+	}
+	
+	// TODO 잠시 보류.. 
+	function uploadThumbnail() {
+		var formData = new FormData();
+		formData.append("thumbnail", $("#thumbnail").val());
+		formData.append("region", $("#region_list .region_selected").text());
+		
+		$.ajax({
+			"url" : "/upload/date-course/thumbnail",
+			"method" : "post",
+			"data" : formData
+		}).done(function() {
+			alert("성공");
+		}).fail(function() {
+			alert("실패");
 		});
 	}
 /*]]>*/

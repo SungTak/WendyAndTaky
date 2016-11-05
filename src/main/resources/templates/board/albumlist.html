@@ -12,7 +12,7 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 </head>
 <body>
 	<!-- 로그인 유저 레벨에 따라 다르게 보여야하ㅓㄴ다!! URL 직접 접근도 마찬가지! -->
-	<li sec:authorize="hasRole('1')"><a href="/upload/date-course">데이트코스 올리기</a></li>
+	<div sec:authorize="hasRole('1')"><a href="/upload/date-course">데이트코스 올리기</a></div>
 	<section>
 		<article>
 			
