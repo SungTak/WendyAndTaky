@@ -33,6 +33,9 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("commons-collections:commons-collections:3.2")
 	
+	// image 논리 경로
+	compile("org.apache.tomcat.embed:tomcat-embed-jasper")
+	
 	// DB
 	compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile("org.mariadb.jdbc:mariadb-java-client")
