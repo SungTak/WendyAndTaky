@@ -4,3 +4,10 @@ bin/
 .gradle/
 .project
 .classpath
+.idea
+.idea/
+gradle/
+gradlew
+gradlew.bat
+classes/
+*.iml

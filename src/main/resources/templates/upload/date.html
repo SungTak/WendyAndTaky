@@ -82,11 +82,15 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 	
 	function initEvent() {
 		var oFile = new wat.File();
-		
+
+        /*
 		$("#content_image").on("change", {
 			"file" : $("#content_image"),
 			"content" : $("#editor")
 		}, oFile.appendContentFile);
+        */
+
+        $("#content_image").on("change", uploadContentImage);
 
 		$("#thumbnail").on("change", {
 			"file" : $("#thumbnail"),
@@ -106,20 +110,24 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 			$("#upload_date").submit();
 		});
 	}
-	
-	// TODO 잠시 보류.. 
-	function uploadThumbnail() {
+
+	function uploadContentImage() {
 		var formData = new FormData();
-		formData.append("thumbnail", $("#thumbnail").val());
+		formData.append("image", $("#content_image")[0].files[0]);
 		formData.append("region", $("#region_list .region_selected").text());
 		
 		$.ajax({
-			"url" : "/upload/date-course/thumbnail",
+			"url" : "/upload/date-course/content-image",
 			"method" : "post",
-			"data" : formData
-		}).done(function() {
+			"data" : formData,
+            "dataType" : "html",
+            "processData" : false,
+            "contentType" : false // multipart/form-data와 ajax를 쓰면 processData, contentType을 false로 해야함, 아직 이유 모름
+		}).done(function(data) {
+            console.log(data);
 			alert("성공");
-		}).fail(function() {
+		}).fail(function(error) {
+            console.log(error);
 			alert("실패");
 		});
 	}
