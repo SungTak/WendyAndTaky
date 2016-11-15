@@ -7,4 +7,6 @@ public interface DatePostingService {
 	public boolean saveDateImage(DatePosting datePosting) throws Exception;
 
     public String saveDateImage(MultipartFile image, String region) throws Exception;
+    
+    public boolean save(DatePosting datePosting) throws Exception;
 }

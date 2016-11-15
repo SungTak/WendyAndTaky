@@ -124,8 +124,7 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
             "processData" : false,
             "contentType" : false // multipart/form-data와 ajax를 쓰면 processData, contentType을 false로 해야함, 아직 이유 모름
 		}).done(function(data) {
-            console.log(data);
-			alert("성공");
+			$("#editor").append(data);
 		}).fail(function(error) {
             console.log(error);
 			alert("실패");

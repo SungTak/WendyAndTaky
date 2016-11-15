@@ -1,5 +1,6 @@
 package com.taky.and.wendy.date.model;
 
+import org.apache.ibatis.type.Alias;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -8,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author seongtak.yoon (zergyst1988@naver.com)
  *
  */
+@Alias("datePosting")
 public class DatePosting {
 	private long id;
 	private String title;
@@ -19,6 +21,8 @@ public class DatePosting {
 	private String region;
 	/** 데이트 코스 소개 본문 */
 	private String body;
+	/** 포스팅 작성자 */
+	private String editor;
 	
 	public MultipartFile getThumbnail() {
 		return thumbnail;
@@ -66,5 +70,13 @@ public class DatePosting {
 
 	public void setBody(String body) {
 		this.body = body;
+	}
+
+	public String getEditor() {
+		return editor;
+	}
+
+	public void setEditor(String editor) {
+		this.editor = editor;
 	}
 }

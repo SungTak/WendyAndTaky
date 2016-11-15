@@ -34,7 +34,7 @@ public class UploadController {
 		logger.debug("파일업로드시작");
 		
 		datePostingService.saveDateImage(datePosting);
-
+		datePostingService.save(datePosting);
         return "업로드 성공";
     }
 
@@ -45,15 +45,15 @@ public class UploadController {
 
             if (StringUtils.isEmpty(resultPath)) {
                 // TODO 프러포터리 빼쟈
-                model.addAttribute("src", "localhost:8080/error-image");
+                model.addAttribute("src", "http://localhost:8080/error-image");
             } else {
-                model.addAttribute("src", "localhost:8080" + resultPath);
+                model.addAttribute("src", "http://localhost:8080" + resultPath);
             }
         } catch (Exception e) {
             logger.error("### 데이트코스 본문 이미지 올리기 실패", e);
-            model.addAttribute("src", "localhost:8080/error-image");
+            model.addAttribute("src", "http://localhost:8080/error-image");
         }
 
-        return "make/a";
+        return "make/img";
     }
 }
