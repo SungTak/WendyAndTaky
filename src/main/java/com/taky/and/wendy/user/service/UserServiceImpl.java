@@ -141,7 +141,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 			user.setEmail(email);
 			
 			User foundUser = this.findUser(user);
-			logger.debug(foundUser.getPassword());
 			return foundUser;
 		} catch(Exception e) {
 			throw new UsernameNotFoundException("### 유저 정보를 찾는 과정에서 에러가 발생했습니다.", e);

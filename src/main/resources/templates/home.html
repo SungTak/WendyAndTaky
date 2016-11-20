@@ -7,6 +7,10 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <title th:text="#{home.title}">Wendy And Taky !</title>
 </head>
 <body>
+	<div>
+		<!-- 단순히 자바 코드 없이 로그인한 유저 이름 보기 <span sec:authentication="name"></span>님 안녕하세요.  -->
+		<span th:text="${user.getName()}"></span>님 안녕하세요.
+	</div>
 	<ul>
 		<li sec:authorize="isAnonymous()"><a href="/signin">로그인</a></li>
 		<li sec:authorize="isAuthenticated()"><a href="/signout">로그아웃</a></li>
