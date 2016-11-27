@@ -24,6 +24,8 @@ public class User implements UserDetails {
 	public static final String RECORD = "record";
 	/** 유저의 상태가 일반 */
 	public static final String NORMAL = "normal";
+	/** 손님(게스트) 이름 */
+	public static final String GUEST = "방문객";
 	
 	private String email;
 	private String name;

@@ -4,13 +4,13 @@ import org.apache.ibatis.type.Alias;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 데이트 코스 포스팅 모델
+ * 데이트 코스 포스트 저장 모델
  * 
  * @author seongtak.yoon (zergyst1988@naver.com)
  *
  */
-@Alias("datePosting")
-public class DatePosting {
+@Alias("dateCoursePost")
+public class DateCoursePost {
 	private long id;
 	private String title;
 	/** 섬네일 */
@@ -21,8 +21,10 @@ public class DatePosting {
 	private String region;
 	/** 데이트 코스 소개 본문 */
 	private String body;
-	/** 포스팅 작성자 */
+	/** 포스트 작성자 */
 	private String editor;
+	/** 포스트 상태 */
+	private String condition;
 	
 	public MultipartFile getThumbnail() {
 		return thumbnail;
@@ -78,5 +80,13 @@ public class DatePosting {
 
 	public void setEditor(String editor) {
 		this.editor = editor;
+	}
+
+	public String getCondition() {
+		return condition;
+	}
+
+	public void setCondition(String condition) {
+		this.condition = condition;
 	}
 }
